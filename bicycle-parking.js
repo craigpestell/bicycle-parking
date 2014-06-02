@@ -25,27 +25,30 @@ SfBikeParking.initialize = function (){
     zoom: SfBikeParking.config.startZoom
   };
 
-  map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+  SfBikeParking.map = new google.maps.Map(document.getElementById("map-canvas"),
+                                          mapOptions);
 
   //Create an invisible marker bound to the center of the map
-  map['center_marker'] = new google.maps.Marker({
-    map: map
+  SfBikeParking.map.center_marker = new google.maps.Marker({
+    map: SfBikeParking.map
   });
-  map.center_marker.setVisible(false);
-  map.center_marker.bindTo('position', map, 'center'); 
+  SfBikeParking.map.center_marker.setVisible(false);
+  SfBikeParking.map.center_marker.bindTo('position', SfBikeParking.map,
+                                         'center'); 
 
   //Create a circle and bind to center marker.
-  map['circle'] = new google.maps.Circle({
-    center: map.getCenter(),
+  SfBikeParking.map.circle = new google.maps.Circle({
+    center: SfBikeParking.map.getCenter(),
     fillColor: SfBikeParking.config.circleFillColor,
     fillOpacity: SfBikeParking.config.circleFillOpacity,
-    map: map,
+    map: SfBikeParking.map,
     radius: SfBikeParking.config.circleStartRadius,
     strokeColor: SfBikeParking.config.circleStrokeColor,
     strokeOpacity: SfBikeParking.config.circleStrokeOpacity,
     strokeWeight: SfBikeParking.config.strokeWeight
   });
-  map.circle.bindTo('center', map.center_marker, 'position');
+  SfBikeParking.map.circle.bindTo('center', SfBikeParking.map.center_marker,
+                                  'position');
 
   // initialize jquery slider
   $("#search-radius").slider({
@@ -55,7 +58,7 @@ SfBikeParking.initialize = function (){
     min: SfBikeParking.config.searchRadiusMin,
     value: SfBikeParking.config.searchRadiusStart,
     slide: function (event, ui) {
-      SfBikeParking.updateRadius(map.circle, ui.value);
+      SfBikeParking.updateRadius(SfBikeParking.map.circle, ui.value);
     }
   });
 
@@ -67,8 +70,9 @@ SfBikeParking.initialize = function (){
       alert('There was a problem downloading the San Francisco Bicycle ' +
             'Parking dataset.'); 
     } else {
-      map['bicycleCoords'] = data;
-      google.maps.event.addListener(map, 'idle', SfBikeParking.showMarkers);
+      SfBikeParking.map.bicycleCoords = data;
+      google.maps.event.addListener(SfBikeParking.map, 'idle',
+                                    SfBikeParking.showMarkers);
     }
   });
 };
@@ -80,7 +84,7 @@ SfBikeParking.initialize = function (){
  */
 SfBikeParking.updateRadius = function (circle, rad) {
   circle.setRadius(rad);
-  google.maps.event.trigger(map, 'idle');
+  google.maps.event.trigger(SfBikeParking.map, 'idle');
 };
 
 /**
@@ -97,11 +101,11 @@ SfBikeParking.rad = function(x) {
  * @param event event which triggered this function.
  */
 SfBikeParking.showMarkers = function (event) {
-  var lat = map.getCenter().k;
-  var lng = map.getCenter().A;
+  var lat = SfBikeParking.map.getCenter().k;
+  var lng = SfBikeParking.map.getCenter().A;
   var R = 6371; // radius of earth in km
   var distances = [];
-  var coords = map.bicycleCoords;
+  var coords = SfBikeParking.map.bicycleCoords;
   //Set coordinate distances to center of map/circle.
   for (i=0; i < coords.length; i++) {
     var dLat  = SfBikeParking.rad(coords[i].coordinates.latitude - lat);
@@ -113,7 +117,7 @@ SfBikeParking.showMarkers = function (event) {
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     var d = R * c;
     distances[i] = d;
-    coords[i]['distance'] = d;
+    coords[i].distance = d;
   }
 
   coords.sort(function (a, b) {
@@ -121,11 +125,11 @@ SfBikeParking.showMarkers = function (event) {
   });
 
   //clear markers
-  if (map.hasOwnProperty("markers")) {
-    for (i=0; i<map.markers.length; i++) {
-      map.markers[i].setMap(null);
+  if (SfBikeParking.map.hasOwnProperty("markers")) {
+    for (i=0; i<SfBikeParking.map.markers.length; i++) {
+      SfBikeParking.map.markers[i].setMap(null);
     }
-    map.markers = [];
+    SfBikeParking.map.markers = [];
   }
 
   for (i=0; i < coords.length; i++) {
@@ -133,21 +137,21 @@ SfBikeParking.showMarkers = function (event) {
     var cLatlng = new google.maps.LatLng(c.coordinates.latitude,
                                          c.coordinates.longitude);
     var distanceBtwn = google.maps.geometry.spherical.computeDistanceBetween(
-                           cLatlng, map.getCenter());
+                           cLatlng, SfBikeParking.map.getCenter());
     // only show markers inside the circle.
-    if (distanceBtwn > map.circle.radius) {
+    if (distanceBtwn > SfBikeParking.map.circle.radius) {
       break;
     } else {
       var marker = new google.maps.Marker({
         position: cLatlng,
-        map: map,
+        map: SfBikeParking.map,
         title: c.location_name + ', ' + c.yr_inst +
               ', type: ' + c.bike_parking + ', spaces: ' + c.spaces
       });
-      if (!map.hasOwnProperty("markers")) {
-        map['markers'] = new Array(marker);
+      if (!SfBikeParking.map.hasOwnProperty("markers")) {
+        SfBikeParking.map.markers = new Array(marker);
       } else {
-        map.markers.push(marker);
+        SfBikeParking.map.markers.push(marker);
       }
     }
   }
