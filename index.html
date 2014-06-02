@@ -2,38 +2,23 @@
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style type="text/css">
-      html { height: 100% }
-      body { height: 100%; margin: 0; padding: 0 }
-      #map-canvas { height: 100% }
-    </style>
-    <script type="text/javascript"
-      src="http://code.jquery.com/jquery-1.11.1.min.js">
-    </script>
-    <script type="text/javascript"
-      src="bicycle-parking.js">
-    </script>
-    <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCWUlhkbOz75-192ohpTgTh8aAcBjBrRjw&sensor=TRUE">
-    </script>
+    <title>SF Bicycle Parking Map</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCWUlhkbOz75-192ohpTgTh8aAcBjBrRjw&sensor=TRUE"></script>
+    <script type="text/javascript" src="bicycle-parking.js"></script>
     <script type="text/javascript">
-      function initialize() {
-        var mapOptions = {
-          center: new google.maps.LatLng(37.7833, -122.4167),
-          zoom: 13
-        };
-	map = new google.maps.Map(document.getElementById("map-canvas"),
-		mapOptions);
-
-	$.get( "https://data.sfgov.org/api/views/w969-5mn4/rows.json", function( data ) {
-		map['bicycleCoords'] = data;
-		google.maps.event.addListener(map, 'click', find_closest_marker);
-	});
-      }
-      google.maps.event.addDomListener(window, 'load', initialize);
+      google.maps.event.addDomListener(window, 'load', SfBikeParking.initialize);
     </script>
   </head>
   <body>
+    <div id="header">
+      <h2>SF Bicycle Parking Areas</h2>
+      <div id="slide-container">Modify your search radius
+      <div id="slide"></div></div>
+    </div>
     <div id="map-canvas"/>
   </body>
 </html>
