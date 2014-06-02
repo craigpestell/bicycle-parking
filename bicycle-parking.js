@@ -1,44 +1,65 @@
 var SfBikeParking = SfBikeParking || {};
 
+SfBikeParking.config = {
+  circleFillColor: "#0000FF",
+  circleFillOpacity: 0.25,
+  circleStartRadius: 500,
+  circleStrokeColor: "0000FF",
+  circleStrokeOpacity: 0.8,
+  circleStrokeWeight: 2,
+  startLat:37.7833,
+  startLng: -122.4167,
+  startZoom: 16,
+  searchRadiusMin: 500,
+  searchRadiusMax: 3000,
+  searchRadiusStart: 500
+};
+
 /**
  * Create a new map object, decorate it, and populate data.
  */
 SfBikeParking.initialize = function (){
   var mapOptions = {
-    center: new google.maps.LatLng(37.7833, -122.4167),
-    zoom: 16,
-    scaleControl: true
+    center: new google.maps.LatLng(SfBikeParking.config.startLat,
+                                   SfBikeParking.config.startLng),
+    zoom: SfBikeParking.config.startZoom
   };
+
   map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
-  map['marker'] = new google.maps.Marker({
+  //Create an invisible marker bound to the center of the map
+  map['center_marker'] = new google.maps.Marker({
     map: map
   });
-  map.marker.setVisible(false);
-  map.marker.bindTo('position', map, 'center'); 
+  map.center_marker.setVisible(false);
+  map.center_marker.bindTo('position', map, 'center'); 
 
+  //Create a circle and bind to center marker.
   map['circle'] = new google.maps.Circle({
-    strokeColor: "#0000FF",
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillColor: "#0000FF",
-    fillOpacity: 0.25,
-    map: map,
     center: map.getCenter(),
-    radius: 500
+    fillColor: SfBikeParking.config.circleFillColor,
+    fillOpacity: SfBikeParking.config.circleFillOpacity,
+    map: map,
+    radius: SfBikeParking.config.circleStartRadius,
+    strokeColor: SfBikeParking.config.circleStrokeColor,
+    strokeOpacity: SfBikeParking.config.circleStrokeOpacity,
+    strokeWeight: SfBikeParking.config.strokeWeight
   });
-  map.circle.bindTo('center', map.marker, 'position');
+  map.circle.bindTo('center', map.center_marker, 'position');
 
-  $("#slide").slider({
+  // initialize jquery slider
+  $("#search-radius").slider({
     orientation: "horizontal",
     range: "min",
-    max: 3000,
-    min: 500,
-    value: 500,
+    max: SfBikeParking.config.searchRadiusMax,
+    min: SfBikeParking.config.searchRadiusMin,
+    value: SfBikeParking.config.searchRadiusStart,
     slide: function (event, ui) {
       SfBikeParking.updateRadius(map.circle, ui.value);
     }
   });
+
+  // fetch data
   var url = 'http://data.sfgov.org/resource/w969-5mn4.json?' +
             'status=COMPLETE&status_detail=INSTALLED';
   $.get(url, function( data ) {
@@ -47,7 +68,6 @@ SfBikeParking.initialize = function (){
             'Parking dataset.'); 
     } else {
       map['bicycleCoords'] = data;
-      console.log(data);
       google.maps.event.addListener(map, 'idle', SfBikeParking.showMarkers);
     }
   });
@@ -81,13 +101,11 @@ SfBikeParking.showMarkers = function (event) {
   var lng = map.getCenter().A;
   var R = 6371; // radius of earth in km
   var distances = [];
-  coords = map.bicycleCoords;
-  //Set bicycle parking area's distance to center of map/circle.
+  var coords = map.bicycleCoords;
+  //Set coordinate distances to center of map/circle.
   for (i=0; i < coords.length; i++) {
-    var mlat = coords[i].coordinates.latitude;
-    var mlng = coords[i].coordinates.longitude;
-    var dLat  = SfBikeParking.rad(mlat - lat);
-    var dLong = SfBikeParking.rad(mlng - lng);
+    var dLat  = SfBikeParking.rad(coords[i].coordinates.latitude - lat);
+    var dLong = SfBikeParking.rad(coords[i].coordinates.longitude - lng);
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
       Math.cos(SfBikeParking.rad(lat)) *
       Math.cos(SfBikeParking.rad(lat)) *
@@ -97,6 +115,7 @@ SfBikeParking.showMarkers = function (event) {
     distances[i] = d;
     coords[i]['distance'] = d;
   }
+
   coords.sort(function (a, b) {
     return a.distance - b.distance;
   });
@@ -110,11 +129,12 @@ SfBikeParking.showMarkers = function (event) {
   }
 
   for (i=0; i < coords.length; i++) {
-    c = coords[i];
+    var c = coords[i];
     var cLatlng = new google.maps.LatLng(c.coordinates.latitude,
                                          c.coordinates.longitude);
     var distanceBtwn = google.maps.geometry.spherical.computeDistanceBetween(
                            cLatlng, map.getCenter());
+    // only show markers inside the circle.
     if (distanceBtwn > map.circle.radius) {
       break;
     } else {

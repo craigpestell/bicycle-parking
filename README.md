@@ -6,7 +6,7 @@ At the top of the file there should be a short introduction and/ or overview tha
 
 ## Code Example
 
-Your HTML page must have the #map and #slide elements defined (see supplied index.html).
+Your HTML page must have the #map and #search-radius elements defined (see supplied index.html).
 Call the initialize function (in bicycle-parking.js) on the Google Map's load event:
 google.maps.event.addDomListener(window, 'load', SfBikeParking.initialize);
 
