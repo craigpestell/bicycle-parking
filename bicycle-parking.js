@@ -1,6 +1,3 @@
-/*jslint browser: true*/
-/*global alert, $, google*/
-
 "use strict";
 var SfBikeParking = {};
 
