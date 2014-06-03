@@ -17,6 +17,7 @@ google.maps.event.addDomListener(window, 'load', SfBikeParking.initialize);
 ## Installation
 
 The files for this project can be pulled from this git repository: https://github.com/craigpestell/bicycle-parking.git
+
 Upload all files to the HTTP server directory as your choice.  Ensure all files are readable by your HTTP server's user.
 
 ## Tests
