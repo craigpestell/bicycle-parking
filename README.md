@@ -2,7 +2,10 @@
 
 bicycle-parking is a HTML/Javascript website which contains a Google Maps populated with markers for all bicycle parking racks and lockers in San Francisco.
 
-At the top of the file there should be a short introduction and/ or overview that explains **what** the project is. This description should match descriptions added for package managers (Gemspec, package.json, etc.)
+This application still needs: 
+    - A message within the circle if there are no markers within it on map load saying something like "No bicycle parking areas nearby.  Expand your search radius."
+    - Unit tests.
+    - Drop-down to filter parking areas by type (locker, rack)
 
 ## Code Example
 
@@ -17,7 +20,7 @@ Upload all files to the HTTP server directory as your choice.  Ensure all files 
 
 ## Tests
 
-Describe and show how to run the tests with code examples.
+There are currently no tests.
 
 ## License
 
